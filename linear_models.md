@@ -239,3 +239,46 @@ mh_lm_results_df %>%
 ```
 
 <img src="linear_models_files/figure-gfm/unnamed-chunk-9-2.png" width="90%" />
+
+## Logistic regression
+
+``` r
+nyc_airbnb <-   
+  nyc_airbnb %>% 
+  mutate(
+    expensive_apt = as.numeric(price > 500)
+  )
+```
+
+Let’s fit a logistic regression for the binary outcome.
+
+``` r
+logistic_fit <- 
+  glm(
+  expensive_apt ~ stars + borough,
+  data = nyc_airbnb,
+  family = binomial())
+
+logistic_fit %>% 
+  broom::tidy() %>% 
+  mutate(
+    term = str_replace(term, "borough", "Borough: "),
+    estimate = exp(estimate)
+  ) %>% 
+  select(term, OR = estimate, p.value)
+```
+
+    ## # A tibble: 5 × 3
+    ##   term                     OR    p.value
+    ##   <chr>                 <dbl>      <dbl>
+    ## 1 (Intercept)        7.52e-10 0.908     
+    ## 2 stars              2.15e+ 0 0.00000292
+    ## 3 Borough: Brooklyn  2.49e+ 5 0.945     
+    ## 4 Borough: Manhattan 8.11e+ 5 0.940     
+    ## 5 Borough: Queens    1.15e+ 5 0.949
+
+``` r
+nyc_airbnb %>% 
+  modelr::add_predictions((logistic_fit)) %>% 
+  mutate(pred = boot::inv.logit(pred)) %>% view()
+```
