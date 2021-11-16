@@ -169,4 +169,4 @@ logistic_fit %>%
 nyc_airbnb %>% 
   modelr::add_predictions((logistic_fit)) %>% 
   mutate(pred = boot::inv.logit(pred)) %>% view()
-
+```
